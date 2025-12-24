@@ -1,0 +1,39 @@
+<ResourceDictionary
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="clr-namespace:Prueba_Apis">
+
+
+    <Style TargetType="{x:Type local:NavButton}">
+        <Setter Property="HorizontalAlignment" Value="Center"/>
+        <Setter Property="Cursor" Value="Hand"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="{x:Type local:NavButton}">
+                    <Grid>
+                        <Border Background="Transparent" Height="35" Width="5" x:Name="Indicator" HorizontalAlignment="Left" CornerRadius="1" Margin="-8,0,0,0"/>
+                        <Border Background="Transparent" x:Name="Back"
+                            BorderBrush="{TemplateBinding BorderBrush}"
+                            BorderThickness="{TemplateBinding BorderThickness}"
+                            CornerRadius="7" Width="35" Height="35">
+                            <Path Data="{TemplateBinding Icon}" x:Name="Icon"
+                              Stretch="Uniform" Fill="White" Width="20" Height="20"/>
+                        </Border>
+                    </Grid>
+
+                    <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="Back" Property="Background" Value="White"/>
+                                <Setter TargetName="Icon" Property="Fill" Value="#403880"/>
+                            </Trigger>
+                            <Trigger Property="IsSelected" Value="True">
+                                <Setter TargetName="Back" Property="Background" Value="White"/>
+                                <Setter TargetName="Icon" Property="Fill" Value="#403880"/>
+                            <Setter TargetName="Indicator" Property="Background" Value="White"/>
+                        </Trigger>
+                        </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+</ResourceDictionary>

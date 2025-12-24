@@ -1,0 +1,156 @@
+﻿<Page x:Class="Prueba_Apis.Views.RegisterView"
+      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+      xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+      xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
+      xmlns:local="clr-namespace:Prueba_Apis"
+      mc:Ignorable="d" 
+      d:DesignHeight="450" d:DesignWidth="800"
+      Title="RegisterView">
+
+    <Page.Resources>
+        <Style TargetType="Button" x:Key="ButtonP">
+            <Setter Property="Margin" Value="5" />
+            <Setter Property="Padding" Value="10,5" />
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Foreground" Value="#7163BA"/>
+            <Setter Property="Width" Value="150"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border CornerRadius="10" Background="Transparent" BorderBrush="#7163BA" BorderThickness="2">
+                            <ContentPresenter HorizontalAlignment="Center" 
+                                              VerticalAlignment="Center"/>
+                        </Border>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+        <Style TargetType="Button" x:Key="ButtonRegister">
+            <Setter Property="Margin" Value="5" />
+            <Setter Property="Padding" Value="10,5" />
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border CornerRadius="10" Background="#7163BA" BorderBrush="#7163BA" BorderThickness="2">
+                            <ContentPresenter HorizontalAlignment="Center" 
+                                      VerticalAlignment="Center"/>
+                        </Border>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+        <Style TargetType="DataGrid">
+            <Setter Property="RowBackground" Value="White"/>
+            <Setter Property="AlternatingRowBackground" Value="#F5F5F5"/>
+            <Setter Property="BorderBrush" Value="Transparent"/>
+            <Setter Property="Foreground" Value="#333333"/>
+            <Setter Property="FontSize" Value="14"/>
+            <Setter Property="CanUserResizeRows" Value="False"/>
+            <Setter Property="CanUserResizeColumns" Value="False"/>
+            <Setter Property="SelectionMode" Value="Single"/>
+            <Setter Property="SelectionUnit" Value="FullRow"/>
+            <Setter Property="AutoGenerateColumns" Value="False"/>
+            <Setter Property="HeadersVisibility" Value="Column"/>
+        </Style>
+        <Style TargetType="DataGridColumnHeader">
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="Foreground" Value="#7163BA"/>
+            <Setter Property="FontWeight" Value="Bold"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="BorderBrush" Value="#CCCCCC"/>
+            <Setter Property="Padding" Value="10,5"/>
+        </Style>
+    </Page.Resources>
+    <ScrollViewer VerticalScrollBarVisibility="Auto" materialDesign:ScrollViewerAssist.IsAutoHideEnabled="True">
+        <Grid Margin="30">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="250"/>
+                <RowDefinition Height="100"/>
+            </Grid.RowDefinitions>
+
+            <TextBlock Text="Gestión de Inventario" FontSize="28" FontWeight="Bold" Foreground="#7163BA" Margin="0,0,0,20"/>
+
+            <materialDesign:Card Grid.Row="1" UniformCornerRadius="20" Padding="20" Margin="0,0,0,20" Background="White">
+                <StackPanel Orientation="Horizontal">
+                    <StackPanel Orientation="Vertical">
+                        <StackPanel Orientation="Horizontal" Margin="10,0,0,0">
+                            <Button Style="{StaticResource ButtonP}" Foreground="#7163BA" Margin="-10,0,0,0" Command="{Binding Escaner_Click}" CommandParameter="Escanear">
+                                <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                                    <materialDesign:PackIcon Kind="BarcodeScan" Foreground="#7163BA" Width="20" Height="20" Margin="0,0,5,0"/>
+                                    <TextBlock Text="Escanear Codigo" FontSize="14" Foreground="#7163BA"/>
+                                </StackPanel>
+                            </Button>
+                            <TextBox materialDesign:HintAssist.Hint="Codigo de Producto (Opcional)" Style="{StaticResource MaterialDesignFloatingHintTextBox}" Width="160" Margin="10,0,20,0" local:FocusExtension.IsFocused="{Binding _registerViewModel.IsCodigoFocused}">
+                                <TextBox.InputBindings>
+                                    <KeyBinding Key="Enter" Command="{Binding Escaneo_Click}"/>
+                                </TextBox.InputBindings>
+                            </TextBox>
+                            <TextBox materialDesign:HintAssist.Hint="Nombre del Producto" Style="{StaticResource MaterialDesignFloatingHintTextBox}" Width="200" Margin="0,0,20,0"/>
+                            <Button Style="{StaticResource ButtonRegister}" Foreground="White" Margin="0,0,0,0" Width="120">
+                                <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                                    <materialDesign:PackIcon Kind="Plus" Foreground="White" Width="20" Height="20" Margin="0,0,5,0"/>
+                                    <TextBlock Text="Registrar" FontSize="14" Foreground="White"/>
+                                </StackPanel>
+                            </Button>
+                        </StackPanel>
+                        <StackPanel Orientation="Horizontal" Margin="0,20,0,0">
+                            <TextBox materialDesign:HintAssist.Hint="Precio de Fabrica" Style="{StaticResource MaterialDesignFloatingHintTextBox}" Width="100" Margin="10,0,20,0"/>
+                            <TextBox materialDesign:HintAssist.Hint="Precio de Venta" Style="{StaticResource MaterialDesignFloatingHintTextBox}" Width="100" Margin="10,0,20,0"/>
+                            <TextBox materialDesign:HintAssist.Hint="Cantidad" Style="{StaticResource MaterialDesignFloatingHintTextBox}" Width="100" Margin="10,0,20,0"/>
+                            <DatePicker materialDesign:HintAssist.Hint="Fecha de Vencimiento" Width="200" Margin="10,0,20,0" Style="{StaticResource MaterialDesignOutlinedDatePicker}" BorderThickness="0"/>
+                        </StackPanel>
+                    </StackPanel>
+
+                </StackPanel>
+            </materialDesign:Card>
+
+            <materialDesign:Card Grid.Row="2" UniformCornerRadius="20" Background="White">
+                <DataGrid x:Name="dgProductos" AutoGenerateColumns="False" CanUserAddRows="False" Background="Transparent" BorderThickness="0" GridLinesVisibility="None">
+                    <DataGrid.Columns>
+                        <DataGridTextColumn Header="ID" Binding="{Binding Id}" Width="50"/>
+                        <DataGridTextColumn Header="Producto" Binding="{Binding Nombre}" Width="*"/>
+                        <DataGridTextColumn Header="Precio" Binding="{Binding Precio}" Width="100"/>
+                        <DataGridTextColumn Header="Cantidad" Binding="{Binding Cantidad}" Width="100"/>
+                        <DataGridTextColumn Header="Vencimiento" Binding="{Binding Vencimiento}" Width="150"/>
+                        <DataGridTemplateColumn Header="Acciones" Width="100">
+                            <DataGridTemplateColumn.CellTemplate>
+                                <DataTemplate>
+                                    <StackPanel Orientation="Horizontal">
+                                        <Button Style="{StaticResource MaterialDesignIconButton}" ToolTip="Editar" Width="30" Height="30">
+                                            <materialDesign:PackIcon Kind="Pencil" Foreground="#7163BA"/>
+                                        </Button>
+                                        <Button Style="{StaticResource MaterialDesignIconButton}" ToolTip="Eliminar" Width="30" Height="30">
+                                            <materialDesign:PackIcon Kind="Delete" Foreground="Red"/>
+                                        </Button>
+                                    </StackPanel>
+                                </DataTemplate>
+                            </DataGridTemplateColumn.CellTemplate>
+                        </DataGridTemplateColumn>
+                    </DataGrid.Columns>
+                </DataGrid>
+            </materialDesign:Card>
+            <materialDesign:Card Grid.Row="3" UniformCornerRadius="20" Margin="0,20,0,0" Padding="20">
+                <StackPanel Orientation="Horizontal">
+                    <Button Style="{StaticResource ButtonP}" Foreground="#7163BA" Margin="-10,0,0,0">
+                        <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                            <materialDesign:PackIcon Kind="FileImportOutline" Foreground="#7163BA" Width="20" Height="20" Margin="0,0,5,0"/>
+                            <TextBlock Text="Importar Datos" FontSize="14" Foreground="#7163BA"/>
+                        </StackPanel>
+                    </Button>
+                    <Button Style="{StaticResource ButtonRegister}" Foreground="#7163BA" Margin="10,0,0,0" Width="150">
+                        <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                            <materialDesign:PackIcon Kind="FileExportOutline" Foreground="White" Width="20" Height="20" Margin="0,0,5,0"/>
+                            <TextBlock Text="Exportar Datos" FontSize="14" Foreground="White"/>
+                        </StackPanel>
+                    </Button>
+                </StackPanel>
+            </materialDesign:Card>
+        </Grid>
+    </ScrollViewer>
+</Page>
