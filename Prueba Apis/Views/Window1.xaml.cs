@@ -55,6 +55,7 @@ namespace Prueba_Apis.Views
                     await System.Threading.Tasks.Task.Delay(1000);
 
                     MainWindow mainWindow = new MainWindow();
+                    Application.Current.MainWindow = mainWindow;
                     mainWindow.Show();
                     // Cerrar ventana de login con resultado exitoso
                     DialogResult = true;                    

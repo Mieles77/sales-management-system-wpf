@@ -24,8 +24,8 @@ namespace Prueba_Apis
             if (login.ShowDialog() == true)
             {
                 // 3. Si el login fue exitoso (DialogResult = true)
-                MainWindow principal = new MainWindow();
-                principal.Show();
+                /*MainWindow principal = new MainWindow();
+                principal.Show();*/
             }
             else
             {

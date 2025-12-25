@@ -26,7 +26,7 @@ namespace Prueba_Apis.Views
         public RegisterView()
         {
             InitializeComponent();
-            DataContext = new MainViewModel();
+            DataContext = new MainViewModel(Aviso, Codigo.Text);
         }
     }
 }
