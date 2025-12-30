@@ -22,7 +22,7 @@ namespace Prueba_Apis.ViewModel
         private String Codigo;
         public MainViewModel(Snackbar aviso, String codigo)
         {
-            _registerViewModel = new RegisterViewModel();
+            _registerViewModel = new RegisterViewModel(Aviso);
             Escaner_Click = new RelayCommand(Escaner);
             Aviso = aviso;
             Codigo = codigo;

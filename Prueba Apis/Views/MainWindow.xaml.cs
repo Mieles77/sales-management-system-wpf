@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Prueba_Apis.Services;
+using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
@@ -82,6 +83,30 @@ namespace Prueba_Apis.Views
             if (sideBar.SelectedItem is NavButton selectedItem && selectedItem.NavLink != null)
             {
                 MainFrame.Navigate(new Uri("Views/" + selectedItem.NavLink, UriKind.Relative));
+            }
+        }
+        private void Window_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
+        {
+            if (e.ChangedButton == MouseButton.Left)
+                this.DragMove();
+        }
+
+        // En MainWindow.xaml.cs o donde quieras probar
+        private void TestDatabase()
+        {
+            try
+            {
+                var db = DatabaseService.Instance;
+                bool conectado = db.VerificarConexion();
+
+                if (conectado)
+                {
+                    MessageBox.Show($"✅ Base de datos creada en: {db.GetDatabasePath()}");
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"❌ Error: {ex.Message}");
             }
         }
     }

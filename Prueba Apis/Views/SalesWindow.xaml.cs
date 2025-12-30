@@ -17,14 +17,14 @@ using System.Windows.Shapes;
 namespace Prueba_Apis.Views
 {
     /// <summary>
-    /// Lógica de interacción para HomeView.xaml
+    /// Lógica de interacción para SalesWindow.xaml
     /// </summary>
-    public partial class HomeView : Page
+    public partial class SalesWindow : Page
     {
-        public HomeView()
+        public SalesWindow()
         {
             InitializeComponent();
-            DataContext = new HomeViewModel();
+            DataContext = new SalesViewModel();
         }
     }
 }

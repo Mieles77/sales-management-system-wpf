@@ -1,4 +1,5 @@
-﻿using Prueba_Apis.ViewModel;
+﻿using MaterialDesignThemes.Wpf;
+using Prueba_Apis.ViewModel;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -26,7 +27,12 @@ namespace Prueba_Apis.Views
         public RegisterView()
         {
             InitializeComponent();
-            DataContext = new MainViewModel(Aviso, Codigo.Text);
+            DataContext = new RegisterViewModel(Aviso);
+        }
+
+        private void dgProductos_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+
         }
     }
 }
