@@ -18,6 +18,8 @@ namespace Prueba_Apis.Model
         private decimal _total;
         private DateTime _fechaVenta;
         private string _productoNombre;
+        private string _tipo;
+        private string _descripcion;
         public int Id
         {
             get => _id;
@@ -79,6 +81,25 @@ namespace Prueba_Apis.Model
             }
         }
 
+        public string Tipo
+        {
+            get => _tipo;
+            set
+            {
+                _tipo = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public string Descripcion
+        {
+            get => _descripcion;
+            set
+            {
+                _descripcion = value;
+                OnPropertyChanged();
+            }
+        }
         public Ventas()
         {
         }

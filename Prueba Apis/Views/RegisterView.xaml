@@ -165,6 +165,7 @@
                                           Foreground="White"/>
                             </StackPanel>
                         </Button>
+                        
                     </Grid>
 
                     <!-- SEGUNDA FILA DE INPUTS -->
@@ -215,7 +216,7 @@
                          BorderThickness="0"                          
                          GridLinesVisibility="None"
                          VerticalScrollBarVisibility="Auto"                          
-                         HorizontalScrollBarVisibility="Auto" SelectionChanged="dgProductos_SelectionChanged"
+                         HorizontalScrollBarVisibility="Auto"
                          ItemsSource="{Binding Productos}"
                          SelectedItem="{Binding ProductoSeleccionado}">
                     <DataGrid.Columns>
@@ -252,18 +253,20 @@
                                     <StackPanel Orientation="Horizontal" 
                                                HorizontalAlignment="Center">
                                         <Button Style="{StaticResource MaterialDesignIconButton}" 
-                                               ToolTip="Editar" 
                                                Width="30" 
                                                Height="30"
-                                               Margin="2">
+                                               Margin="2"
+                                               Command="{Binding EditarProductoCommand, RelativeSource={RelativeSource AncestorType=DataGrid}}"
+                                                CommandParameter="{Binding}">
                                             <materialDesign:PackIcon Kind="Pencil" 
                                                                     Foreground="#7163BA"/>
                                         </Button>
                                         <Button Style="{StaticResource MaterialDesignIconButton}" 
-                                               ToolTip="Eliminar" 
                                                Width="30" 
                                                Height="30"
-                                               Margin="2">
+                                               Margin="2"
+                                                Command="{Binding EliminarProductoCommand, RelativeSource={RelativeSource AncestorType=DataGrid}}"
+                                                CommandParameter="{Binding}">
                                             <materialDesign:PackIcon Kind="Delete" 
                                                                     Foreground="Red"/>
                                         </Button>
@@ -284,7 +287,7 @@
                 <WrapPanel Orientation="Horizontal" 
                           HorizontalAlignment="Left">
                     <Button Style="{StaticResource ButtonP}" 
-                            Margin="0,0,10,0">
+                            Margin="0,0,10,0" Command="{Binding ImportarCommand}">
                         <StackPanel Orientation="Horizontal">
                             <materialDesign:PackIcon Kind="FileImportOutline" 
                                                     Foreground="#7163BA" 
@@ -297,7 +300,7 @@
                         </StackPanel>
                     </Button>
 
-                    <Button Style="{StaticResource ButtonRegister}">
+                    <Button Style="{StaticResource ButtonRegister}" Command="{Binding ExportarCommand}">
                         <StackPanel Orientation="Horizontal">
                             <materialDesign:PackIcon Kind="FileExportOutline" 
                                                     Foreground="White" 
@@ -307,6 +310,22 @@
                             <TextBlock Text="Exportar" 
                                       FontSize="14" 
                                       Foreground="White"/>
+                        </StackPanel>
+                    </Button>
+                    <!--Boton Cancelar-->
+                    <Button Grid.Column="3"
+                            Style="{StaticResource ButtonP}"
+                            Margin="5,0,0,0"
+                            Command="{Binding CancelarCommand}">
+                        <StackPanel Orientation="Horizontal">
+                            <materialDesign:PackIcon Kind="Close" 
+                                        Foreground="#7163BA" 
+                                        Width="20" 
+                                        Height="20" 
+                                        Margin="0,0,5,0"/>
+                            <TextBlock Text="Cancelar" 
+                                          FontSize="14" 
+                                          Foreground="#7163BA"/>
                         </StackPanel>
                     </Button>
                 </WrapPanel>

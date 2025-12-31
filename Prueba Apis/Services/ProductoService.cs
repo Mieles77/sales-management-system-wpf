@@ -258,6 +258,24 @@ namespace Prueba_Apis.Services
             }
         }
 
+        public int ObtenerCantBajoStock(int cantidadMinima = 10)
+        {
+            try
+            {
+                string sql = "SELECT COUNT(*) FROM Productos WHERE Cantidad <= @Cantidad";
+                using (var connection = _database.GetConnection())
+                {
+                    connection.Open();
+                    int count = connection.QuerySingle<int>(sql, new { Cantidad = cantidadMinima });
+                    return count;
+                }
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"Error al contar productos con bajo stock: {ex.Message}", ex);
+            }
+        }
+
         /// <summary>
         /// Obtiene productos próximos a vencer (30 días)
         /// </summary>

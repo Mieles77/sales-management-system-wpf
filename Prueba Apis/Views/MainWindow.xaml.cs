@@ -1,4 +1,5 @@
-﻿using Prueba_Apis.Services;
+﻿using Prueba_Apis.Model;
+using Prueba_Apis.Services;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -15,6 +16,7 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using System.Windows.Threading;
 using TuApp.Services;
 
 namespace Prueba_Apis.Views
@@ -30,6 +32,17 @@ namespace Prueba_Apis.Views
         {
             InitializeComponent();
             MainFrame.Navigate(new Uri("Views/HomeView.xaml", UriKind.Relative));
+            icNotificaciones.ItemsSource = NotificacionService.GenerarNotificaciones();
+            DispatcherTimer timer = new DispatcherTimer
+            {
+                Interval = TimeSpan.FromMinutes(5)
+            };
+            timer.Tick += (s, e) =>
+            {
+                icNotificaciones.ItemsSource = NotificacionService.GenerarNotificaciones();
+            };
+            timer.Start();
+
 
             // Suscribirse al evento Loaded
         }
@@ -91,6 +104,12 @@ namespace Prueba_Apis.Views
                 this.DragMove();
         }
 
+        private void AbrirNotificaciones_Click(object sender, RoutedEventArgs e)
+        {
+            // Esto abre o cierra la burbuja al hacer clic
+            PopupNotificaciones.IsOpen = !PopupNotificaciones.IsOpen;
+        }
+
         // En MainWindow.xaml.cs o donde quieras probar
         private void TestDatabase()
         {
@@ -109,5 +128,6 @@ namespace Prueba_Apis.Views
                 MessageBox.Show($"❌ Error: {ex.Message}");
             }
         }
+     
     }
 }

@@ -72,7 +72,7 @@ namespace Prueba_Apis.Services
             try
             {
                 string sql = @"
-                    SELECT v.Id, v.ProductoId, p.Descripcion AS ProductoNombre, v.Cantidad, v.PrecioUnitario, v.Total as Monto, v.FechaVenta, 'Ventas' AS Tipo
+                    SELECT v.Id, v.ProductoId, p.Nombre as ProductoNombre, v.Cantidad, v.PrecioUnitario, v.Total, v.FechaVenta, v.Tipo
                     FROM Ventas v
                     JOIN Productos p ON v.ProductoId = p.Id
                     ORDER BY v.FechaVenta DESC LIMIT 5;";
@@ -93,7 +93,8 @@ namespace Prueba_Apis.Services
                                     Cantidad = Convert.ToInt32(reader["Cantidad"]),
                                     PrecioUnitario = Convert.ToDecimal(reader["PrecioUnitario"]),
                                     Total = Convert.ToDecimal(reader["Total"]),
-                                    FechaVenta = DateTime.Parse(reader["FechaVenta"].ToString())
+                                    FechaVenta = DateTime.Parse(reader["FechaVenta"].ToString()),
+                                    Tipo = reader["Tipo"].ToString()
                                 });
                             }
                         }

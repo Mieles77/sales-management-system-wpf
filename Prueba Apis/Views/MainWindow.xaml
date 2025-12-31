@@ -17,6 +17,8 @@
     <Window.Resources>
         <Style TargetType="Button">
             <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
+            <Setter Property="Focusable" Value="False"/>
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="Button">
@@ -24,6 +26,9 @@
                     </ControlTemplate>
                 </Setter.Value>
             </Setter>
+        </Style>
+        <Style TargetType="Control">
+            <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
         </Style>
     </Window.Resources>
 
@@ -39,7 +44,8 @@
                 <ColumnDefinition Width="Auto" MinWidth="90"/>
                 <ColumnDefinition Width="*"/>
             </Grid.ColumnDefinitions>
-
+            
+            
             <!-- BARRA DE TÍTULO -->
             <Grid Grid.Row="0" 
                   Grid.Column="0" 
@@ -112,20 +118,68 @@
                          SelectionChanged="sideBar_SelectionChanged">
 
                     <!-- Notificaciones -->
-                    <Border Background="Transparent" 
-                            BorderBrush="White" 
-                            BorderThickness="1" 
-                            CornerRadius="7"
-                            Padding="8"
-                            Margin="0,5">
-                        <local:NavButton Padding="6" 
-                                        Icon="M10 21H14C14 22.1 13.1 23 12 23S10 22.1 10 21M21 19V20H3V19L5 17V11C5 7.9 7 5.2 10 4.3V4C10 2.9 10.9 2 12 2S14 2.9 14 4V4.3C17 5.2 19 7.9 19 11V17L21 19M17 11C17 8.2 14.8 6 12 6S7 8.2 7 11V18H17V11Z"/>
-                    </Border>
+
+                    <Button Padding="6" Background="Transparent" Foreground="White" Cursor="Hand" Click="AbrirNotificaciones_Click" FocusVisualStyle="{x:Null}">
+                        <Border Background="Transparent" 
+                                BorderBrush="White" 
+                                BorderThickness="1" 
+                                CornerRadius="7"
+                                Padding="8"
+                                Margin="0,5">
+                            <materialDesign:PackIcon Kind="Bell"></materialDesign:PackIcon>
+                        </Border>
+                    </Button>
+
+                    <Popup x:Name="PopupNotificaciones" 
+       PlacementTarget="{Binding ElementName=BtnNotificaciones}" 
+       Placement="Bottom" 
+       StaysOpen="False" 
+       AllowsTransparency="True" 
+       PopupAnimation="Slide"
+       HorizontalOffset="-250" 
+       VerticalOffset="10">
+
+                        <materialDesign:Card Width="300" Margin="10" UniformCornerRadius="15">
+                            <Grid>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="*"/>
+                                    <RowDefinition Height="Auto"/>
+                                </Grid.RowDefinitions>
+
+                                <Border Background="#7163BA" Padding="10" CornerRadius="15,15,0,0">
+                                    <TextBlock Text="Últimas Alertas" Foreground="White" FontWeight="Bold" HorizontalAlignment="Center"/>
+                                </Border>
+
+                                <ItemsControl Grid.Row="1" x:Name="icNotificaciones" MaxHeight="300">
+                                    <ItemsControl.ItemTemplate>
+                                        <DataTemplate>
+                                            <Border BorderBrush="#F0F0F0" BorderThickness="0,0,0,1" Padding="10">
+                                                <Grid>
+                                                    <Grid.ColumnDefinitions>
+                                                        <ColumnDefinition Width="Auto"/>
+                                                        <ColumnDefinition Width="*"/>
+                                                    </Grid.ColumnDefinitions>
+                                                    <materialDesign:PackIcon Kind="Information" Foreground="#7163BA" Margin="0,0,10,0" VerticalAlignment="Center"/>
+                                                    <StackPanel Grid.Column="1">
+                                                        <TextBlock Text="{Binding Titulo}" FontWeight="SemiBold" FontSize="13"/>
+                                                        <TextBlock Text="{Binding Mensaje}" FontSize="11" Foreground="Gray" TextWrapping="Wrap"/>
+                                                    </StackPanel>
+                                                </Grid>
+                                            </Border>
+                                        </DataTemplate>
+                                    </ItemsControl.ItemTemplate>
+                                </ItemsControl>
+
+                                <Button Grid.Row="2" Content="Limpiar todo" Style="{StaticResource MaterialDesignFlatButton}" 
+                    FontSize="11" Foreground="#7163BA" Height="30"/>
+                            </Grid>
+                        </materialDesign:Card>
+                    </Popup>
 
                     <!-- Separador -->
-                    <Separator Background="White" 
-                              Opacity="0.5"
-                              Margin="5,10"/>
+
+                    <Border Background="White" Width="50" Height="2" BorderThickness="0,0,5,0" Margin="8,0,0,0" FocusVisualStyle="{x:Null}" Focusable="False"/>
 
                     <!-- Home -->
                     <local:NavButton NavLink="HomeView.xaml" 
@@ -151,6 +205,7 @@
                     <!-- IA -->
                     <local:NavButton Margin="0,5,0,10" 
                                     Padding="10" 
+                                     NavLink="ChatbotView.xaml"
                                     Icon="M19.8 5.67C21.05 7.19 21.82 9.04 22 11H19.94C19.74 9.57 19.16 8.22 18.26 7.1L19.8 5.67M13 2.05C14.96 2.24 16.81 3 18.33 4.26L16.9 5.69C15.77 4.8 14.42 4.24 13 4.05V2.05M11 2.06C9.04 2.26 7.19 3.03 5.67 4.27L7.1 5.69C8.23 4.81 9.58 4.24 11 4.06V2.06M4.26 5.67L5.63 7.06V7.1C4.75 8.23 4.18 9.58 4 11H2C2.21 9.04 3 7.18 4.26 5.67M2 14V19L3.6 17.4C5.38 20.17 8.47 22 12 22C16.82 22 20.87 18.55 21.8 14H19.75C18.86 17.45 15.72 20 12 20C9.05 20 6.39 18.39 5 16L7 14H2M12 17L13.56 13.58L17 12L13.56 10.44L12 7L10.43 10.44L7 12L10.43 13.58L12 17Z"
                                     ToolTip="Modus IA"/>
                 </ListBox>
