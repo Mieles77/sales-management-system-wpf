@@ -129,6 +129,7 @@ namespace Prueba_Apis.ViewModel
                 OnPropertyChanged();
             }
         }
+        
 
         #endregion
 
@@ -137,8 +138,8 @@ namespace Prueba_Apis.ViewModel
         public ICommand EscanearCommand { get; }
         public ICommand ProcesarCodigoCommand { get; }
         public ICommand RegistrarProductoCommand { get; }
-        public ICommand EditarProductoCommand { get; }
-        public ICommand EliminarProductoCommand { get; }
+        public ICommand EditarCommand { get; }
+        public ICommand EliminarCommand { get; }
         public ICommand ActualizarListaCommand { get; }
         public ICommand ExportarCommand { get; }
         public ICommand ImportarCommand { get; }
@@ -161,8 +162,8 @@ namespace Prueba_Apis.ViewModel
             EscanearCommand = new RelayCommand(_ => Escanear());
             ProcesarCodigoCommand = new RelayCommand(_ => ProcesarCodigo());
             RegistrarProductoCommand = new RelayCommand(_ => RegistrarProducto(), _ => PuedeRegistrar());
-            EditarProductoCommand = new RelayCommand(param => EditarProducto(param as Producto));
-            EliminarProductoCommand = new RelayCommand(param => EliminarProducto(param as Producto));
+            EditarCommand = new RelayCommand(_ => EditarProducto());
+            EliminarCommand = new RelayCommand(_ => EliminarProducto());
             ActualizarListaCommand = new RelayCommand(_ => CargarProductos());
             ExportarCommand = new RelayCommand(_ => Exportar());
             ImportarCommand = new RelayCommand(_ => Importar());
@@ -336,83 +337,20 @@ namespace Prueba_Apis.ViewModel
                 return;
             }
 
-            // Validar campos
-            if (string.IsNullOrWhiteSpace(NombreProducto))
+            var ventanaEditar = new EditarProductoView(ProductoSeleccionado);
+
+            // Si el usuario le dio a "Guardar"
+            if (ventanaEditar.ShowDialog() == true)
             {
-                MessageBox.Show("El nombre no puede estar vacío.",
-                                "Validación", MessageBoxButton.OK, MessageBoxImage.Exclamation);
-                return;
-            }
+                // Llamamos al servicio para impactar la base de datos
+                _productoService.Actualizar(ProductoSeleccionado);
 
-            // Confirmación
-            var resultado = MessageBox.Show(
-                $"¿Estás seguro de que deseas guardar los cambios para: {ProductoSeleccionado.Nombre}?",
-                "Confirmar Edición",
-                MessageBoxButton.YesNo,
-                MessageBoxImage.Question);
-
-            if (resultado == MessageBoxResult.Yes)
-            {
-                try
-                {
-                    // Actualizar el objeto con los datos del formulario
-                    ProductoSeleccionado.Codigo = CodigoProducto;
-                    ProductoSeleccionado.Nombre = NombreProducto;
-                    ProductoSeleccionado.PrecioFabrica = PrecioFabrica;
-                    ProductoSeleccionado.PrecioVenta = PrecioVenta;
-                    ProductoSeleccionado.Cantidad = Cantidad;
-                    ProductoSeleccionado.FechaVencimiento = FechaVencimiento;
-
-                    // Actualizar en la base de datos
-                    bool actualizado = _productoService.Actualizar(ProductoSeleccionado);
-
-                    if (actualizado)
-                    {
-                        MessageBox.Show("Producto actualizado correctamente.",
-                                       "Éxito",
-                                       MessageBoxButton.OK,
-                                       MessageBoxImage.Information);
-
-                        // Recargar la lista
-                        CargarProductos();
-
-                        // Limpiar formulario
-                        LimpiarFormulario();
-                    }
-                }
-                catch (Exception ex)
-                {
-                    MessageBox.Show($"Error al editar: {ex.Message}",
-                                   "Error",
-                                   MessageBoxButton.OK,
-                                   MessageBoxImage.Error);
-                }
+                // Refrescamos la lista para que se vean los cambios
+                CargarProductos();
+                MessageBox.Show("Producto actualizado correctamente.");
             }
         }
 
-        private void EditarProducto(Producto producto)
-        {
-            if (producto == null)
-            {
-                MessageBox.Show("No se pudo identificar el producto a editar.",
-                                "Aviso", MessageBoxButton.OK, MessageBoxImage.Warning);
-                return;
-            }
-
-            // Cargar los datos del producto en el formulario
-            CodigoProducto = producto.Codigo;
-            NombreProducto = producto.Nombre;
-            PrecioFabrica = producto.PrecioFabrica;
-            PrecioVenta = producto.PrecioVenta;
-            Cantidad = producto.Cantidad;
-            FechaVencimiento = producto.FechaVencimiento;
-
-            // Guardar referencia del producto que se está editando
-            ProductoSeleccionado = producto;
-
-            MessageBox.Show("Datos cargados. Modifica los campos y presiona 'Registrar' para guardar.",
-                            "Modo Edición", MessageBoxButton.OK, MessageBoxImage.Information);
-        }
 
         /// <summary>
         /// Elimina el producto seleccionado
@@ -455,49 +393,7 @@ namespace Prueba_Apis.ViewModel
                 MessageBox.Show($"Error al eliminar producto: {ex.Message}",
                     "Error", MessageBoxButton.OK, MessageBoxImage.Error);
             }
-        }
-
-        private void EliminarProducto(Producto producto)
-        {
-            if (producto == null)
-            {
-                MessageBox.Show("No se pudo identificar el producto a eliminar.",
-                                "Aviso", MessageBoxButton.OK, MessageBoxImage.Warning);
-                return;
-            }
-
-            var resultado = MessageBox.Show(
-                $"¿Está seguro de eliminar el producto '{producto.Nombre}'?",
-                "Confirmar Eliminación",
-                MessageBoxButton.YesNo,
-                MessageBoxImage.Question
-            );
-
-            if (resultado == MessageBoxResult.Yes)
-            {
-                try
-                {
-                    bool eliminado = _productoService.Eliminar(producto.Id);
-
-                    if (eliminado)
-                    {
-                        Productos.Remove(producto);
-                        MessageBox.Show("Producto eliminado correctamente",
-                            "Éxito", MessageBoxButton.OK, MessageBoxImage.Information);
-                    }
-                    else
-                    {
-                        MessageBox.Show("No se pudo eliminar el producto",
-                            "Advertencia", MessageBoxButton.OK, MessageBoxImage.Warning);
-                    }
-                }
-                catch (Exception ex)
-                {
-                    MessageBox.Show($"Error al eliminar producto: {ex.Message}",
-                        "Error", MessageBoxButton.OK, MessageBoxImage.Error);
-                }
-            }
-        }
+        }       
 
 
         #endregion
@@ -675,7 +571,7 @@ namespace Prueba_Apis.ViewModel
                                   .Select((c, i) => new { Nombre = c.GetString().Trim(), Index = i + 1 })
                                   .ToDictionary(h => h.Nombre.ToLower(), h => h.Index);
 
-                        string[] columnasRequeridas = { "Código", "Nombre", "Precio Fabrica", "Precio Venta", "Cantidad", "Fecha Vencimiento"};
+                        string[] columnasRequeridas = { "codigo", "nombre", "precio fabrica", "precio venta", "cantidad", "fecha vencimiento"};
 
                         foreach (var col in columnasRequeridas)
                         {
@@ -690,12 +586,12 @@ namespace Prueba_Apis.ViewModel
                         {
                             try
                             {
-                                string codigo = row.Cell(headers["Código"]).GetString();
-                                string nombre = row.Cell(headers["Nombre"]).GetString();
-                                decimal precioFabrica = decimal.TryParse(row.Cell(headers["Precio Fabrica"]).GetString(), out decimal pf) ? pf : 0;
-                                decimal precioVenta = decimal.TryParse(row.Cell(headers["Precio Venta"]).GetString(), out decimal pv) ? pv : 0;
-                                int cantidad = int.TryParse(row.Cell(headers["Cantidad"]).GetString(), out int c) ? c : 0;
-                                DateTime fechaVencimiento = row.Cell(headers["Fecha Vencimiento"]).GetDateTime();
+                                string codigo = row.Cell(headers["codigo"]).GetString();
+                                string nombre = row.Cell(headers["nombre"]).GetString();
+                                decimal precioFabrica = decimal.TryParse(row.Cell(headers["precio fabrica"]).GetString(), out decimal pf) ? pf : 0;
+                                decimal precioVenta = decimal.TryParse(row.Cell(headers["precio venta"]).GetString(), out decimal pv) ? pv : 0;
+                                int cantidad = int.TryParse(row.Cell(headers["cantidad"]).GetString(), out int c) ? c : 0;
+                                DateTime fechaVencimiento = row.Cell(headers["fecha vencimiento"]).GetDateTime();
                                 DateTime fechaRegistro = DateTime.Now;
                                 RegistrarProducto(codigo, nombre, precioFabrica, precioVenta, cantidad, fechaVencimiento, fechaRegistro);
                             }

@@ -34,5 +34,15 @@ namespace Prueba_Apis.Views
         {
 
         }
+
+        private object EditarClick(object sender, RoutedEventArgs e)
+        {
+            return sender;
+        }
+
+        private object EliminarClick(object sender, RoutedEventArgs e)
+        {
+            return sender;
+        }
     }
 }

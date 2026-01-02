@@ -123,10 +123,13 @@ namespace Prueba_Apis.Services
 
             string createTableUsuarios = @"
                 CREATE TABLE IF NOT EXISTS Usuarios (
-                    Correo Text Primary Key,
+                    Id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    Correo Text UNIQUE,
                     Nombre Text,
                     Password Text,
-                    FotoUrl Text);";
+                    FotoUrl Text,
+                    FechaRegistro TEXT NOT NULL,
+                    EstaSuscrito Bool);";
 
             using (var command = new SQLiteCommand(connection))
             {

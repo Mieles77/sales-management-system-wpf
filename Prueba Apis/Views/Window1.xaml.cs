@@ -1,6 +1,7 @@
 ﻿using Dapper;
 using Firebase.Auth;
 using Google.Apis.Oauth2.v2.Data;
+using Prueba_Apis.Model.Prueba_Apis.Model;
 using Prueba_Apis.Services;
 using System;
 using System.Collections.Generic;
@@ -26,10 +27,12 @@ namespace Prueba_Apis.Views
     {
         private readonly GoogleAuthService _authService;
         public GoogleUser AuthenticatedUser { get; private set; }
+        private readonly DatabaseService _database;
 
         public Window1()
         {
             InitializeComponent();
+            _database = DatabaseService.Instance;
             _authService = new GoogleAuthService();
             this.MouseDown += (s, e) =>
             {
@@ -69,15 +72,12 @@ namespace Prueba_Apis.Views
 
                     txtStatus.Text = $"¡Bienvenido, {AuthenticatedUser.Name}!";
 
+
                     // Esperar un poco para mostrar el mensaje
                     await System.Threading.Tasks.Task.Delay(1000);
 
-                    MainWindow mainWindow = new MainWindow();
-                    Application.Current.MainWindow = mainWindow;
-                    mainWindow.Show();
-                    // Cerrar ventana de login con resultado exitoso
-                    DialogResult = true;
-                    Close();
+
+                    ValidarSuscripcion(ObtenerUsuario(AuthenticatedUser.Email));
                 }
                 else
                 {
@@ -112,7 +112,7 @@ namespace Prueba_Apis.Views
 
             try
             {
-                using (var connection = DatabaseService.Instance.GetConnection())
+                using (var connection = _database.GetConnection())
                 {
                     connection.Open();
                     // Buscamos el usuario en la DB local
@@ -122,7 +122,7 @@ namespace Prueba_Apis.Views
 
                     if (userLocal != null)
                     {
-                        AbrirMainWindow();
+                        ValidarSuscripcion(ObtenerUsuario(correo));
                     }
                     else
                     {
@@ -144,7 +144,7 @@ namespace Prueba_Apis.Views
             mainWindow.Show();
             // Cerrar ventana de login con resultado exitoso
             DialogResult = true;
-            Close();
+            this.Close();
         }
 
         private void Cerrar_Click(object sender, RoutedEventArgs e)
@@ -162,7 +162,7 @@ namespace Prueba_Apis.Views
 
         private bool ExisteUsuarioLocal(string correo)
         {
-            using (var db = DatabaseService.Instance.GetConnection())
+            using (var db = _database.GetConnection())
             {
                 db.Open();
                 return db.ExecuteScalar<int>("SELECT COUNT(1) FROM Usuarios WHERE Correo = @correo", new { correo }) > 0;
@@ -171,12 +171,109 @@ namespace Prueba_Apis.Views
 
         private void RegistrarUsuarioLocal(GoogleUser user, string pass)
         {
-            using (var db = DatabaseService.Instance.GetConnection())
+            try
             {
-                db.Open();
-                db.Execute("INSERT INTO Usuarios (Correo, Nombre, Password, FotoUrl) VALUES (@Email, @Name, @Password, @Picture)",
-                    new { user.Email, user.Name, Password = pass, user.Picture });
+                using (var db = _database.GetConnection())
+                {
+                    db.Open();
+                    db.Execute("INSERT INTO Usuarios (Correo, Nombre, Password, FotoUrl, FechaRegistro, EstaSuscrito) VALUES (@Email, @Name, @Password, @Picture, @FechaRegistro, @EstaSuscrito)",
+                        new { user.Email, user.Name, Password = pass, user.Picture, FechaRegistro = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"), EstaSuscrito = false });
+                }
             }
+            catch (Exception ex) 
+            {
+                throw new Exception($"Error al registrar usuario: {ex.Message}", ex);
+            }
+        }
+
+        public Usuario ObtenerUsuario(string correo)
+        {
+            try
+            {
+                const string sql = @"
+            SELECT 
+                Id,
+                Correo,
+                Nombre        AS NombreUsuario,
+                Password,
+                FotoUrl       AS FotoURL,
+                FechaRegistro,
+                EstaSuscrito
+            FROM Usuarios
+            WHERE Correo = @correo;";
+
+                using (var db = _database.GetConnection())
+                {
+                    db.Open();
+                    var usuario = db.QueryFirstOrDefault<Usuario>(sql, new { correo });
+                    return usuario;
+                }
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"Error al buscar usuario por correo: {ex.Message}", ex);
+            }
+        }
+
+        private void VerificarAcceso(Usuario usuarioLogueado)
+        {
+            DateTime fechaHoy = DateTime.Now;
+            DateTime fechaFinPrueba = usuarioLogueado.FechaRegistro.AddDays(15);
+
+            if (!usuarioLogueado.EstaSuscrito && fechaHoy > fechaFinPrueba)
+            {
+                // La prueba expiró y no ha pagado
+                SuscriptionView subWindow = new SuscriptionView();
+                subWindow.ShowDialog();
+            }
+            else
+            {
+                // Entrar a la MainWindow
+                MainWindow main = new MainWindow();
+                main.Show();
+                this.Close();
+            }
+        }
+
+        // Este método se ejecuta DESPUÉS de un login exitoso
+        private void ValidarSuscripcion(Usuario usuarioLogueado)
+        {
+            // 1. Calculamos cuántos días han pasado desde que se registró
+            TimeSpan diferencia = DateTime.Now - usuarioLogueado.FechaRegistro;
+            int diasTranscurridos = diferencia.Days;
+
+            // 2. Verificamos las reglas
+            if (usuarioLogueado.EstaSuscrito)
+            {
+                // Si ya pagó, entra directo
+                AbrirMainWindow();
+            }
+            else if (diasTranscurridos <= 15)
+            {
+                // Aún está en el periodo de prueba (0 a 15 días)
+                int diasRestantes = 15 - diasTranscurridos;
+                System.Windows.MessageBox.Show($"Te quedan {diasRestantes} días de prueba gratuita.");
+                AbrirMainWindow();
+            }
+            else
+            {
+                // Ya pasaron los 15 días y no está suscrito -> Bloquear y mostrar cobro
+                var ventanaSuscripcion = new SuscriptionView();
+                ventanaSuscripcion.ShowDialog(); // Esto detiene la ejecución hasta que pague o cierre
+
+                // Si después de cerrar la ventana sigue sin estar suscrito, no lo dejamos entrar
+                if (!usuarioLogueado.EstaSuscrito)
+                {
+                    System.Windows.MessageBox.Show("Tu periodo de prueba ha terminado. Por favor adquiere un plan.");
+                }
+            }
+        }
+
+        private void EntrarAlSistema()
+        {
+            MainWindow main = new MainWindow();
+            main.Show();
+            // Aquí cierras la ventana de Login
         }
     }
 }

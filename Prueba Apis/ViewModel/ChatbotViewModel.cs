@@ -173,7 +173,7 @@ namespace Prueba_Apis.ViewModel
                 string infoProductos = "PRODUCTOS EN INVENTARIO:\n" +
                     string.Join("\n", productos.Select(p =>
                         $"- {p.Nombre}: Stock={p.Cantidad}, PrecioVenta=${p.PrecioVenta}, " +
-                        $"PrecioFabrica=${p.PrecioFabrica}"
+                        $"PrecioFabrica=${p.PrecioFabrica}, FechaVencimiento=${p.FechaVencimiento}"
                     ));
 
                 // Información de ventas (últimas 50 para no saturar)

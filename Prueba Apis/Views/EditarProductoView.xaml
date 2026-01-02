@@ -1,0 +1,48 @@
+﻿<Window x:Class="Prueba_Apis.Views.EditarProductoView"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
+        Title="Editar Producto" Height="450" Width="400"
+        WindowStartupLocation="CenterScreen" WindowStyle="None" 
+        AllowsTransparency="True" Background="Transparent">
+
+    <Border CornerRadius="20" Background="White" BorderBrush="#7163BA" BorderThickness="2">
+        <Grid Margin="20">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+
+            <TextBlock Text="EDITAR PRODUCTO" FontSize="18" FontWeight="Bold" 
+                       Foreground="#7163BA" HorizontalAlignment="Center" Margin="0,0,0,20"/>
+
+            <StackPanel Grid.Row="1" VerticalAlignment="Center">
+                <TextBox x:Name="txtNombre" materialDesign:HintAssist.Hint="Nombre del Producto" 
+                         Style="{StaticResource MaterialDesignFloatingHintTextBox}" Margin="0,10"
+                         FontSize="14" Foreground="#333"/>
+
+                <TextBox x:Name="txtPrecio" materialDesign:HintAssist.Hint="Precio de Venta" 
+                         Style="{StaticResource MaterialDesignFloatingHintTextBox}" Margin="0,10"
+                         FontSize="14"/>
+
+                <TextBox x:Name="txtCantidad" materialDesign:HintAssist.Hint="Cantidad Actual" 
+                         Style="{StaticResource MaterialDesignFloatingHintTextBox}" Margin="0,10"
+                         FontSize="14"/>
+            </StackPanel>
+
+            <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,20,0,0">
+                <Button Content="Cancelar" Click="BtnCancelar_Click" 
+                        Style="{StaticResource MaterialDesignFlatButton}" Foreground="Gray" Margin="5"/>
+                <Button x:Name="btnGuardar" Content="Guardar Cambios" Click="BtnGuardar_Click" 
+                        Background="#7163BA" BorderBrush="#7163BA" Foreground="White" Width="150">
+                    <Button.Resources>
+                        <Style TargetType="Border">
+                            <Setter Property="CornerRadius" Value="10"/>
+                        </Style>
+                    </Button.Resources>
+                </Button>
+            </StackPanel>
+        </Grid>
+    </Border>
+</Window>
