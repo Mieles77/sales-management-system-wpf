@@ -16,8 +16,8 @@ namespace TuApp.Services
     public class GoogleAuthService
     {
         // REEMPLAZA ESTOS VALORES CON LOS TUYOS
-        private const string ClientId = "297179608958-o6oou52d4ji3h4m5238mavugma7n8393.apps.googleusercontent.com";
-        private const string ClientSecret = "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";
+        private const string ClientId = "Cambia esto";
+        private const string ClientSecret = "Private";
 
         private static readonly string[] Scopes = {
             "https://www.googleapis.com/auth/userinfo.profile",
