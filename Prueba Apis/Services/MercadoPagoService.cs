@@ -16,7 +16,7 @@ namespace Prueba_Apis.Services
 
         public MercadoPagoService()
         {
-            _accessToken = "APP_USR-226444179184968-010213-8038a8256b95cdbd72ceee197eeb6065-571557338";
+            _accessToken = "Cambia esto PRIVATE";
         }
 
         /// <summary>
