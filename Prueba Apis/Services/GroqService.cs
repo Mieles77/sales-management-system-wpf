@@ -8,8 +8,8 @@ namespace Prueba_Apis.Services
 {
     public class GroqService
     {
-        private readonly string _apiKey = "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";
-        private readonly string _endpoint = "https://api.groq.com/openai/v1/chat/completions";
+        private readonly string _apiKey = "Cambia esto";
+        private readonly string _endpoint = "Private";
 
         public async Task<string> ConsultarIA(string preguntaUsuario, string contextoTienda)
         {
