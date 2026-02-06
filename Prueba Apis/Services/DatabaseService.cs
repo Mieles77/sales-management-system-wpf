@@ -129,7 +129,8 @@ namespace Prueba_Apis.Services
                     Password Text,
                     FotoUrl Text,
                     FechaRegistro TEXT NOT NULL,
-                    EstaSuscrito Bool);";
+                    EstaSuscrito Bool,
+                    FechaInicioSuscripcion TEXT);";
 
             using (var command = new SQLiteCommand(connection))
             {

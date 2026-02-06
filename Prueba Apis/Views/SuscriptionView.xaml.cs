@@ -44,8 +44,19 @@ namespace Prueba_Apis.Views
 
                         if (diasRestantes > 0)
                         {
-                            System.Windows.MessageBox.Show($"Te quedan {diasRestantes} días de prueba gratuita.");
-                            EntrarAlSistema();
+                            var resultado = MessageBox.Show(
+                                $"Te quedan {diasRestantes} días de prueba gratuita.\n\n" +
+                                "¿Deseas suscribirte ahora o seguir usando la prueba gratis?",
+                                "Periodo de Prueba",
+                                MessageBoxButton.YesNo,
+                                MessageBoxImage.Question);
+
+                            if (resultado == MessageBoxResult.No)
+                            {
+                                // Usuario quiere seguir con la prueba
+                                this.DialogResult = true;
+                                this.Close();
+                            }
                         }
                     }
                 }
@@ -56,57 +67,144 @@ namespace Prueba_Apis.Views
             }
         }
 
-        private async void TimerVerificacion_Tick(object sender, EventArgs e)
-        {
-            bool pagado = await _pagoService.VerificarPagoExitoso(_correoUsuario);
-
-            if (pagado)
-            {
-                _timerVerificacion.Stop(); // Detenemos el reloj
-
-                // 3. Actualizamos la base de datos local
-                ActualizarSuscripcionEnBD();
-
-                MessageBox.Show("¡Pago confirmado! Tu suscripción ha sido activada.");
-                this.DialogResult = true;
-                this.Close();
-            }
-        }
-
         private async void StartTrial_Click(object sender, RoutedEventArgs e)
         {
             try
             {
+                if (string.IsNullOrEmpty(_correoUsuario))
+                {
+                    MessageBox.Show(
+                        "Error: No se pudo identificar tu cuenta.\nPor favor inicia sesión nuevamente.",
+                        "Error",
+                        MessageBoxButton.OK,
+                        MessageBoxImage.Error);
+                    return;
+                }
 
-                // Abrir página de Mercado Pago
+                // ⚠️ MODO PRUEBA SIN MERCADO PAGO
+                // Descomentar esto para pruebas sin pagar
+                /*
+                var simulacion = MessageBox.Show(
+                    "🔧 MODO DESARROLLO 🔧\n\n" +
+                    "¿Activar suscripción sin pagar?\n\n" +
+                    "(En producción se abrirá Mercado Pago)",
+                    "Simulación",
+                    MessageBoxButton.YesNo,
+                    MessageBoxImage.Question);
+
+                if (simulacion == MessageBoxResult.Yes)
+                {
+                    ActualizarSuscripcionEnBD();
+
+                    MessageBox.Show(
+                        "✅ Suscripción activada (modo prueba)",
+                        "Éxito",
+                        MessageBoxButton.OK,
+                        MessageBoxImage.Information);
+
+                    this.DialogResult = true;
+                    this.Close();
+                    return;
+                }*/
+                // FIN MODO PRUEBA
+
+                 
+                // ⚠️ CÓDIGO REAL CON MERCADO PAGO (descomentar en producción)
+                var confirmacion = MessageBox.Show(
+                    "🎉 SUSCRIPCIÓN MENSUAL 🎉\n\n" +
+                    "✅ PRIMEROS 15 DÍAS GRATIS\n" +
+                    "✅ Después solo $39,900 COP/mes\n" +
+                    "✅ Cancela cuando quieras\n" +
+                    "✅ Renovación automática cada mes\n\n" +
+                    "¿Deseas continuar?",
+                    "Confirmar Suscripción",
+                    MessageBoxButton.YesNo,
+                    MessageBoxImage.Question);
+
+                if (confirmacion == MessageBoxResult.No)
+                    return;
+
+                // Usar correo diferente para evitar error "same user"
+                // En producción, usa el correo real del cliente
+                
+
                 await _pagoService.AbrirPaginaPago(_correoUsuario, _nombreUsuario);
 
                 MessageBox.Show(
                     "Se ha abierto Mercado Pago en tu navegador.\n\n" +
-                    "✅ Acepta tarjetas colombianas\n" +
-                    "✅ PSE, Efecty, Baloto\n" +
-                    "✅ Solo $39,900 COP/mes\n" +
-                    "✅ Primeros 15 días GRATIS\n\n" +
-                    "Una vez completado el pago, haz clic en 'Ya pagué'",
-                    "Procesando suscripción",
+                    "⏰ Verificaremos automáticamente tu pago cada 10 segundos.\n\n" +
+                    "Una vez apruebes el pago, tu suscripción se activará automáticamente.",
+                    "Verificación Automática",
                     MessageBoxButton.OK,
                     MessageBoxImage.Information);
 
-                _timerVerificacion = new DispatcherTimer();
-                _timerVerificacion.Interval = TimeSpan.FromSeconds(5); // Pregunta cada 5 segundos
-                _timerVerificacion.Tick += TimerVerificacion_Tick;
-                _timerVerificacion.Start();
-
-
+                // Iniciar timer de verificación automática
+                IniciarTimerVerificacion();
+                
             }
             catch (Exception ex)
             {
                 MessageBox.Show(
-                    $"Error al procesar el pago: {ex.Message}",
+                    $"Error al procesar el pago: {ex.Message}\n\n" +
+                    "Por favor verifica tu conexión a internet e intenta nuevamente.",
                     "Error",
                     MessageBoxButton.OK,
                     MessageBoxImage.Error);
+            }
+        }
 
+        private void IniciarTimerVerificacion()
+        {
+            if (_timerVerificacion != null)
+            {
+                _timerVerificacion.Stop();
+            }
+
+            _timerVerificacion = new DispatcherTimer();
+            _timerVerificacion.Interval = TimeSpan.FromSeconds(10);
+            _timerVerificacion.Tick += TimerVerificacion_Tick;
+            _timerVerificacion.Start();
+
+            System.Diagnostics.Debug.WriteLine("Timer de verificación iniciado");
+        }
+
+        private async void TimerVerificacion_Tick(object sender, EventArgs e)
+        {
+            try
+            {
+                System.Diagnostics.Debug.WriteLine($"Verificando pago para: {_correoUsuario}");
+
+                bool pagado = await _pagoService.VerificarPagoExitoso(_correoUsuario);
+
+                if (pagado)
+                {
+                    _timerVerificacion.Stop();
+                    System.Diagnostics.Debug.WriteLine("¡Pago confirmado!");
+
+                    // Actualizar la base de datos
+                    ActualizarSuscripcionEnBD();
+
+                    MessageBox.Show(
+                        "🎉 ¡PAGO CONFIRMADO! 🎉\n\n" +
+                        "Tu suscripción ha sido activada correctamente.\n\n" +
+                        "✅ Acceso ilimitado a todas las funciones\n" +
+                        "✅ Primer cobro en 15 días\n" +
+                        "✅ Renovación automática mensual",
+                        "Suscripción Activa",
+                        MessageBoxButton.OK,
+                        MessageBoxImage.Information);
+
+                    this.DialogResult = true;
+                    this.Close();
+                }
+                else
+                {
+                    System.Diagnostics.Debug.WriteLine("Pago aún no confirmado, esperando...");
+                }
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"Error en verificación: {ex.Message}");
             }
         }
 
@@ -122,28 +220,15 @@ namespace Prueba_Apis.Views
 
                 if (resultado == MessageBoxResult.Yes)
                 {
-                    // Activar suscripción manualmente
-                    // (En producción, usarías webhooks para automatizar esto)
-                    using (var db = DatabaseService.Instance.GetConnection())
-                    {
-                        db.Open();
-                        db.Execute(
-                            @"UPDATE Usuarios 
-                              SET EstaSuscrito = 1, 
-                                  FechaInicioSuscripcion = @fecha 
-                              WHERE Correo = @correo",
-                            new { fecha = DateTime.Now.ToString(), correo = _correoUsuario });
-                    }
+                    // Iniciar verificación inmediata
+                    IniciarTimerVerificacion();
 
                     MessageBox.Show(
-                        "¡Suscripción activada correctamente!\n\n" +
-                        "Ya puedes usar todas las funciones premium.",
-                        "Éxito",
+                        "Verificando tu pago...\n\n" +
+                        "Espera unos segundos.",
+                        "Verificando",
                         MessageBoxButton.OK,
                         MessageBoxImage.Information);
-
-                    this.DialogResult = true;
-                    this.Close();
                 }
             }
             catch (Exception ex)
@@ -158,6 +243,8 @@ namespace Prueba_Apis.Views
 
         private void Logout_Click(object sender, RoutedEventArgs e)
         {
+            DetenerTimer();
+
             var resultado = MessageBox.Show(
                 "¿Estás seguro de que deseas cerrar sesión?",
                 "Confirmar",
@@ -173,25 +260,43 @@ namespace Prueba_Apis.Views
 
         private void ActualizarSuscripcionEnBD()
         {
-            using (var db = DatabaseService.Instance.GetConnection())
+            try
             {
-                db.Open();
-                db.Execute(
-                    @"UPDATE Usuarios 
-                              SET EstaSuscrito = 1, 
-                                  FechaInicioSuscripcion = @fecha 
-                              WHERE Correo = @correo",
-                    new { fecha = DateTime.Now.ToString(), correo = _correoUsuario });
+                using (var db = DatabaseService.Instance.GetConnection())
+                {
+                    db.Open();
+
+                    // ⚠️ CORREGIDO: Actualizar EstaSuscrito sin tocar FechaRegistro
+                    string fecha = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
+                    db.Execute(
+                        @"UPDATE Usuarios 
+                          SET EstaSuscrito = 1
+                          WHERE Correo = @correo",
+                        new { correo = _correoUsuario });
+
+                    System.Diagnostics.Debug.WriteLine($"Suscripción activada para: {_correoUsuario}");
+                }
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"Error al actualizar BD: {ex.Message}");
+                throw;
             }
         }
-        private void EntrarAlSistema() 
+
+        private void DetenerTimer()
         {
-            MainWindow mainWindow = new MainWindow();
-            Application.Current.MainWindow = mainWindow;
-            mainWindow.Show();
-            // Cerrar ventana de login con resultado exitoso
-            DialogResult = true;
-            Close();
+            if (_timerVerificacion != null && _timerVerificacion.IsEnabled)
+            {
+                _timerVerificacion.Stop();
+                System.Diagnostics.Debug.WriteLine("Timer detenido");
+            }
+        }
+
+        protected override void OnClosed(EventArgs e)
+        {
+            DetenerTimer();
+            base.OnClosed(e);
         }
     }
 }

@@ -198,7 +198,8 @@ namespace Prueba_Apis.Views
                 Password,
                 FotoUrl       AS FotoURL,
                 FechaRegistro,
-                EstaSuscrito
+                EstaSuscrito,
+                FechaInicioSuscripcion
             FROM Usuarios
             WHERE Correo = @correo;";
 
@@ -238,33 +239,46 @@ namespace Prueba_Apis.Views
         // Este método se ejecuta DESPUÉS de un login exitoso
         private void ValidarSuscripcion(Usuario usuarioLogueado)
         {
-            // 1. Calculamos cuántos días han pasado desde que se registró
             TimeSpan diferencia = DateTime.Now - usuarioLogueado.FechaRegistro;
             int diasTranscurridos = diferencia.Days;
 
-            // 2. Verificamos las reglas
             if (usuarioLogueado.EstaSuscrito)
             {
-                // Si ya pagó, entra directo
+                // Usuario con suscripción activa
                 AbrirMainWindow();
             }
             else if (diasTranscurridos <= 15)
             {
-                // Aún está en el periodo de prueba (0 a 15 días)
+                // En periodo de prueba
                 int diasRestantes = 15 - diasTranscurridos;
-                System.Windows.MessageBox.Show($"Te quedan {diasRestantes} días de prueba gratuita.");
+                MessageBox.Show($"Te quedan {diasRestantes} días de prueba gratuita.");
                 AbrirMainWindow();
             }
             else
             {
-                // Ya pasaron los 15 días y no está suscrito -> Bloquear y mostrar cobro
-                var ventanaSuscripcion = new SuscriptionView();
-                ventanaSuscripcion.ShowDialog(); // Esto detiene la ejecución hasta que pague o cierre
+                // Periodo vencido - Mostrar ventana de suscripción
+                var ventanaSuscripcion = new SuscriptionView(
+                    usuarioLogueado.Correo,
+                    usuarioLogueado.NombreUsuario);
 
-                // Si después de cerrar la ventana sigue sin estar suscrito, no lo dejamos entrar
-                if (!usuarioLogueado.EstaSuscrito)
+                bool? resultado = ventanaSuscripcion.ShowDialog();
+
+                if (resultado == true)
                 {
-                    System.Windows.MessageBox.Show("Tu periodo de prueba ha terminado. Por favor adquiere un plan.");
+                    // Usuario se suscribió o aún tiene días de prueba
+                    AbrirMainWindow();
+                }
+                else
+                {
+                    // Usuario canceló
+                    MessageBox.Show(
+                        "Tu periodo de prueba ha terminado.\n\n" +
+                        "Por favor suscríbete para continuar.",
+                        "Suscripción Requerida",
+                        MessageBoxButton.OK,
+                        MessageBoxImage.Warning);
+
+                    // No cerrar la ventana, dejar que el usuario intente de nuevo
                 }
             }
         }

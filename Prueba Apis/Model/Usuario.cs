@@ -19,6 +19,7 @@ namespace Prueba_Apis.Model
             public string FotoURL { get; set; }
             public DateTime FechaRegistro { get; set; } // <--- CRUCIAL: Para calcular los 15 días
             public bool EstaSuscrito { get; set; }      // <--- Para saber si ya pagó
+            public DateTime FechaInicioSuscripcion { get; set; } // <--- Fecha de inicio de la suscripción
         }
     }
 }
